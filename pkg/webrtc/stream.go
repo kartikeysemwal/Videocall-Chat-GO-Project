@@ -17,7 +17,7 @@ func StreamConn(c *websocket.Conn, p *Peers) {
 	}
 	peerConnection, err := webrtc.NewPeerConnection(config)
 	if err != nil {
-		log.Print(err)
+		log.Println(err)
 		return
 	}
 	defer peerConnection.Close()
@@ -26,7 +26,7 @@ func StreamConn(c *websocket.Conn, p *Peers) {
 		if _, err := peerConnection.AddTransceiverFromKind(typ, webrtc.RTPTransceiverInit{
 			Direction: webrtc.RTPTransceiverDirectionRecvonly,
 		}); err != nil {
-			log.Print(err)
+			log.Println(err)
 			return
 		}
 	}
@@ -50,6 +50,7 @@ func StreamConn(c *websocket.Conn, p *Peers) {
 		}
 
 		candidateString, err := json.Marshal(i.ToJSON())
+
 		if err != nil {
 			log.Println(err)
 			return
@@ -67,8 +68,9 @@ func StreamConn(c *websocket.Conn, p *Peers) {
 		switch pp {
 		case webrtc.PeerConnectionStateFailed:
 			if err := peerConnection.Close(); err != nil {
-				log.Print(err)
+				log.Println(err)
 			}
+
 		case webrtc.PeerConnectionStateClosed:
 			p.SignalPeerConnections()
 		}
@@ -94,10 +96,11 @@ func StreamConn(c *websocket.Conn, p *Peers) {
 				return
 			}
 
-			if err := peerConnection.AddICECandidate(candidate); err != nil {
+			if err = peerConnection.AddICECandidate(candidate); err != nil {
 				log.Println(err)
 				return
 			}
+
 		case "answer":
 			answer := webrtc.SessionDescription{}
 			if err := json.Unmarshal([]byte(message.Data), &answer); err != nil {

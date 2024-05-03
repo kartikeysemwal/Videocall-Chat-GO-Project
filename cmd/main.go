@@ -1,9 +1,8 @@
 package main
 
 import (
+	"chat-app/internal/server"
 	"log"
-
-	"v/internal/server"
 )
 
 func main() {

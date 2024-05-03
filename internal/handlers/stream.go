@@ -1,10 +1,10 @@
 package handlers
 
 import (
+	w "chat-app/pkg/webrtc"
 	"fmt"
 	"os"
 	"time"
-	w "v/pkg/webrtc"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
@@ -12,6 +12,7 @@ import (
 
 func Stream(c *fiber.Ctx) error {
 	suuid := c.Params("suuid")
+
 	if suuid == "" {
 		c.Status(400)
 		return nil
@@ -23,8 +24,10 @@ func Stream(c *fiber.Ctx) error {
 	}
 
 	w.RoomsLock.Lock()
+
 	if _, ok := w.Streams[suuid]; ok {
 		w.RoomsLock.Unlock()
+
 		return c.Render("stream", fiber.Map{
 			"StreamWebsocketAddr": fmt.Sprintf("%s://%s/stream/%s/websocket", ws, c.Hostname(), suuid),
 			"ChatWebsocketAddr":   fmt.Sprintf("%s://%s/stream/%s/chat/websocket", ws, c.Hostname(), suuid),
@@ -33,7 +36,6 @@ func Stream(c *fiber.Ctx) error {
 		}, "layouts/main")
 	}
 	w.RoomsLock.Unlock()
-
 	return c.Render("stream", fiber.Map{
 		"NoStream": "true",
 		"Leave":    "true",
@@ -47,11 +49,13 @@ func StreamWebsocket(c *websocket.Conn) {
 	}
 
 	w.RoomsLock.Lock()
+
 	if stream, ok := w.Streams[suuid]; ok {
 		w.RoomsLock.Unlock()
 		w.StreamConn(c, stream.Peers)
 		return
 	}
+
 	w.RoomsLock.Unlock()
 }
 
@@ -62,11 +66,13 @@ func StreamViewerWebsocket(c *websocket.Conn) {
 	}
 
 	w.RoomsLock.Lock()
+
 	if stream, ok := w.Streams[suuid]; ok {
 		w.RoomsLock.Unlock()
 		viewerConn(c, stream.Peers)
 		return
 	}
+
 	w.RoomsLock.Unlock()
 }
 

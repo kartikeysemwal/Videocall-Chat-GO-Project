@@ -1,4 +1,4 @@
-FROM golang:1.16.7-alpine3.14
+FROM golang:1.21-alpine
 WORKDIR /src
 
 COPY go.mod go.sum ./
@@ -12,4 +12,4 @@ WORKDIR /src
 
 COPY --from=0 /bin/app /bin/app
 
-ENTRYPOINT ["/bin/app"]
+ENTRYPOINT [ "bin/app" ]

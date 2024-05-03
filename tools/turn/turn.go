@@ -16,8 +16,8 @@ import (
 func main() {
 	publicIP := flag.String("public-ip", "", "")
 	port := flag.Int("port", 3478, "")
-	users := flag.String("users", "", "") // user=pass,user=pass
-	realm := flag.String("realm", "v.akhil.sh", "")
+	users := flag.String("users", "", "")
+	realm := flag.String("realm", "v.kartikey.sh", "")
 	flag.Parse()
 
 	if len(*publicIP) == 0 {
@@ -25,7 +25,7 @@ func main() {
 	}
 
 	if len(*users) == 0 {
-		log.Fatalf("'users' is required")
+		log.Fatalf("users are required")
 	}
 
 	udpListener, err := net.ListenPacket("udp4", "0.0.0.0:"+strconv.Itoa(*port))
@@ -54,11 +54,12 @@ func main() {
 					RelayAddress: net.ParseIP(*publicIP),
 					Address:      "0.0.0.0",
 					MinPort:      50000,
-					MaxPort:      55000,
+					MaxPort:      50000,
 				},
 			},
 		},
 	})
+
 	if err != nil {
 		log.Panic(err)
 	}
@@ -70,4 +71,5 @@ func main() {
 	if err = s.Close(); err != nil {
 		log.Panic(err)
 	}
+
 }

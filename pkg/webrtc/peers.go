@@ -1,6 +1,7 @@
 package webrtc
 
 import (
+	"chat-app/pkg/chat"
 	"encoding/json"
 	"log"
 	"sync"
@@ -9,8 +10,6 @@ import (
 	"github.com/gofiber/websocket/v2"
 	"github.com/pion/rtcp"
 	"github.com/pion/webrtc/v3"
-
-	"v/pkg/chat"
 )
 
 var (
@@ -24,20 +23,15 @@ var (
 		ICETransportPolicy: webrtc.ICETransportPolicyRelay,
 		ICEServers: []webrtc.ICEServer{
 			{
-
 				URLs: []string{"stun:turn.localhost:3478"},
 			},
 			{
-
-				URLs: []string{"turn:turn.localhost:3478"},
-
-				Username: "akhil",
-
-				Credential:     "sharma",
+				URLs:           []string{"turn:turn.localhost:3478"},
+				Username:       "kartikey",
+				Credential:     "kartikey",
 				CredentialType: webrtc.ICECredentialTypePassword,
 			},
-		},
-	}
+		}}
 )
 
 type Room struct {
@@ -64,6 +58,7 @@ type ThreadSafeWriter struct {
 func (t *ThreadSafeWriter) WriteJSON(v interface{}) error {
 	t.Mutex.Lock()
 	defer t.Mutex.Unlock()
+
 	return t.Conn.WriteJSON(v)
 }
 
@@ -75,6 +70,7 @@ func (p *Peers) AddTrack(t *webrtc.TrackRemote) *webrtc.TrackLocalStaticRTP {
 	}()
 
 	trackLocal, err := webrtc.NewTrackLocalStaticRTP(t.Codec().RTPCodecCapability, t.ID(), t.StreamID())
+
 	if err != nil {
 		log.Println(err.Error())
 		return nil
@@ -197,6 +193,7 @@ func (p *Peers) DispatchKeyFrame() {
 			})
 		}
 	}
+
 }
 
 type websocketMessage struct {

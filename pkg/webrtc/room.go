@@ -12,12 +12,15 @@ import (
 
 func RoomConn(c *websocket.Conn, p *Peers) {
 	var config webrtc.Configuration
+
 	if os.Getenv("ENVIRONMENT") == "PRODUCTION" {
 		config = turnConfig
 	}
+
 	peerConnection, err := webrtc.NewPeerConnection(config)
+
 	if err != nil {
-		log.Print(err)
+		log.Println(err)
 		return
 	}
 	defer peerConnection.Close()
@@ -26,7 +29,7 @@ func RoomConn(c *websocket.Conn, p *Peers) {
 		if _, err := peerConnection.AddTransceiverFromKind(typ, webrtc.RTPTransceiverInit{
 			Direction: webrtc.RTPTransceiverDirectionRecvonly,
 		}); err != nil {
-			log.Print(err)
+			log.Println(err)
 			return
 		}
 	}
@@ -38,20 +41,19 @@ func RoomConn(c *websocket.Conn, p *Peers) {
 			Mutex: sync.Mutex{},
 		}}
 
-	// Add our new PeerConnection to global list
 	p.ListLock.Lock()
 	p.Connections = append(p.Connections, newPeer)
 	p.ListLock.Unlock()
 
 	log.Println(p.Connections)
 
-	// Trickle ICE. Emit server candidate to client
 	peerConnection.OnICECandidate(func(i *webrtc.ICECandidate) {
 		if i == nil {
 			return
 		}
 
 		candidateString, err := json.Marshal(i.ToJSON())
+
 		if err != nil {
 			log.Println(err)
 			return
@@ -65,24 +67,24 @@ func RoomConn(c *websocket.Conn, p *Peers) {
 		}
 	})
 
-	// If PeerConnection is closed remove it from global list
 	peerConnection.OnConnectionStateChange(func(pp webrtc.PeerConnectionState) {
 		switch pp {
 		case webrtc.PeerConnectionStateFailed:
 			if err := peerConnection.Close(); err != nil {
-				log.Print(err)
+				log.Println(err)
 			}
+
 		case webrtc.PeerConnectionStateClosed:
 			p.SignalPeerConnections()
 		}
 	})
 
 	peerConnection.OnTrack(func(t *webrtc.TrackRemote, _ *webrtc.RTPReceiver) {
-		// Create a track to fan out our incoming video to all peers
 		trackLocal := p.AddTrack(t)
 		if trackLocal == nil {
 			return
 		}
+
 		defer p.RemoveTrack(trackLocal)
 
 		buf := make([]byte, 1500)
@@ -118,10 +120,11 @@ func RoomConn(c *websocket.Conn, p *Peers) {
 				return
 			}
 
-			if err := peerConnection.AddICECandidate(candidate); err != nil {
+			if err = peerConnection.AddICECandidate(candidate); err != nil {
 				log.Println(err)
 				return
 			}
+
 		case "answer":
 			answer := webrtc.SessionDescription{}
 			if err := json.Unmarshal([]byte(message.Data), &answer); err != nil {
@@ -135,4 +138,5 @@ func RoomConn(c *websocket.Conn, p *Peers) {
 			}
 		}
 	}
+
 }

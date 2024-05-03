@@ -1,13 +1,13 @@
 package handlers
 
 import (
+	"crypto/sha256"
 	"fmt"
 	"os"
 	"time"
-	"v/pkg/chat"
-	w "v/pkg/webrtc"
 
-	"crypto/sha256"
+	"chat-app/pkg/chat"
+	w "chat-app/pkg/webrtc"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/websocket/v2"
@@ -32,12 +32,13 @@ func Room(c *fiber.Ctx) error {
 	}
 
 	uuid, suuid, _ := createOrGetRoom(uuid)
+
 	return c.Render("peer", fiber.Map{
 		"RoomWebsocketAddr":   fmt.Sprintf("%s://%s/room/%s/websocket", ws, c.Hostname(), uuid),
 		"RoomLink":            fmt.Sprintf("%s://%s/room/%s", c.Protocol(), c.Hostname(), uuid),
 		"ChatWebsocketAddr":   fmt.Sprintf("%s://%s/room/%s/chat/websocket", ws, c.Hostname(), uuid),
 		"ViewerWebsocketAddr": fmt.Sprintf("%s://%s/room/%s/viewer/websocket", ws, c.Hostname(), uuid),
-		"StreamLink":          fmt.Sprintf("%s://%s/stream/%s", c.Protocol(), c.Hostname(), suuid),
+		"StreamLink":          fmt.Sprintf("%s://%s/steam/%s", c.Protocol(), c.Hostname(), suuid),
 		"Type":                "room",
 	}, "layouts/main")
 }
@@ -64,21 +65,20 @@ func createOrGetRoom(uuid string) (string, string, *w.Room) {
 		if _, ok := w.Streams[suuid]; !ok {
 			w.Streams[suuid] = room
 		}
+
 		return uuid, suuid, room
 	}
 
 	hub := chat.NewHub()
 	p := &w.Peers{}
 	p.TrackLocals = make(map[string]*webrtc.TrackLocalStaticRTP)
-	room := &w.Room{
-		Peers: p,
-		Hub:   hub,
-	}
 
+	room := &w.Room{Peers: p, Hub: hub}
 	w.Rooms[uuid] = room
 	w.Streams[suuid] = room
 
 	go hub.Run()
+
 	return uuid, suuid, room
 }
 
@@ -89,11 +89,13 @@ func RoomViewerWebsocket(c *websocket.Conn) {
 	}
 
 	w.RoomsLock.Lock()
+
 	if peer, ok := w.Rooms[uuid]; ok {
 		w.RoomsLock.Unlock()
 		roomViewerConn(c, peer.Peers)
 		return
 	}
+
 	w.RoomsLock.Unlock()
 }
 
@@ -105,10 +107,11 @@ func roomViewerConn(c *websocket.Conn, p *w.Peers) {
 	for {
 		select {
 		case <-ticker.C:
-			w, err := c.Conn.NextWriter(websocket.TextMessage)
+			w, err := c.NextWriter(websocket.TextMessage)
 			if err != nil {
 				return
 			}
+
 			w.Write([]byte(fmt.Sprintf("%d", len(p.Connections))))
 		}
 	}
