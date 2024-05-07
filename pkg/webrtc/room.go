@@ -2,6 +2,7 @@ package webrtc
 
 import (
 	"encoding/json"
+	"fmt"
 	"log"
 	"os"
 	"sync"
@@ -58,6 +59,8 @@ func RoomConn(c *websocket.Conn, p *Peers) {
 			log.Println(err)
 			return
 		}
+
+		fmt.Println("kart-test OnICECandidate", candidateString)
 
 		if writeErr := newPeer.Websocket.WriteJSON(&websocketMessage{
 			Event: "candidate",
@@ -123,6 +126,8 @@ func RoomConn(c *websocket.Conn, p *Peers) {
 			if err = peerConnection.AddICECandidate(candidate); err != nil {
 				log.Println(err)
 				return
+			} else {
+				fmt.Println("kart-test received message candidate", candidate.Candidate, *candidate.SDPMid)
 			}
 
 		case "answer":
@@ -135,6 +140,8 @@ func RoomConn(c *websocket.Conn, p *Peers) {
 			if err := peerConnection.SetRemoteDescription(answer); err != nil {
 				log.Println(err)
 				return
+			} else {
+				fmt.Println("kart-test received message answer", answer.Type, answer.SDP)
 			}
 		}
 	}
