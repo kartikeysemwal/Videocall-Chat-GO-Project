@@ -3,7 +3,9 @@ package webrtc
 import (
 	"chat-app/pkg/chat"
 	"encoding/json"
+	"fmt"
 	"log"
+	"regexp"
 	"sync"
 	"time"
 
@@ -48,6 +50,7 @@ type Peers struct {
 type PeerConnectionState struct {
 	PeerConnection *webrtc.PeerConnection
 	Websocket      *ThreadSafeWriter
+	Name           string
 }
 
 type ThreadSafeWriter struct {
@@ -156,6 +159,11 @@ func (p *Peers) SignalPeerConnections() {
 			}); err != nil {
 				return true
 			}
+
+			pattern := regexp.MustCompile(`o=.*? (\d+) \d+ .*?`)
+			matches := pattern.FindStringSubmatch(offer.SDP)
+
+			fmt.Println("kart-test Recived answer", matches[0])
 		}
 
 		return

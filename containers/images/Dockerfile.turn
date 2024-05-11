@@ -12,4 +12,4 @@ WORKDIR /src
 
 COPY --from=0 /bin/app /bin/app
 
-ENTRYPOINT [ "bin/app" ]
+ENTRYPOINT [ "/bin/app" ]

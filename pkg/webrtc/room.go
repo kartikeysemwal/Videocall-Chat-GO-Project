@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"sync"
+	"time"
 
 	"github.com/gofiber/websocket/v2"
 	"github.com/pion/webrtc/v3"
@@ -40,7 +42,7 @@ func RoomConn(c *websocket.Conn, p *Peers) {
 		Websocket: &ThreadSafeWriter{
 			Conn:  c,
 			Mutex: sync.Mutex{},
-		}}
+		}, Name: time.Now().GoString()}
 
 	p.ListLock.Lock()
 	p.Connections = append(p.Connections, newPeer)
@@ -60,7 +62,7 @@ func RoomConn(c *websocket.Conn, p *Peers) {
 			return
 		}
 
-		fmt.Println("kart-test OnICECandidate", candidateString)
+		// fmt.Println("kart-test OnICECandidate", candidateString)
 
 		if writeErr := newPeer.Websocket.WriteJSON(&websocketMessage{
 			Event: "candidate",
@@ -126,8 +128,6 @@ func RoomConn(c *websocket.Conn, p *Peers) {
 			if err = peerConnection.AddICECandidate(candidate); err != nil {
 				log.Println(err)
 				return
-			} else {
-				fmt.Println("kart-test received message candidate", candidate.Candidate, *candidate.SDPMid)
 			}
 
 		case "answer":
@@ -141,9 +141,11 @@ func RoomConn(c *websocket.Conn, p *Peers) {
 				log.Println(err)
 				return
 			} else {
-				fmt.Println("kart-test received message answer", answer.Type, answer.SDP)
+				pattern := regexp.MustCompile(`o=.*? (\d+) \d+ .*?`)
+				matches := pattern.FindStringSubmatch(answer.SDP)
+
+				fmt.Println("kart-test Recived answer", matches[0])
 			}
 		}
 	}
-
 }

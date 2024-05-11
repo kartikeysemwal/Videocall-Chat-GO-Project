@@ -136,12 +136,19 @@ function connect(stream) {
       return console.log("failed to parse msg");
     }
 
+    var pattern = /o=.*\r\n/;
+
     switch (msg.event) {
       case "offer":
         let offer = JSON.parse(msg.data);
+
         if (!offer) {
           return console.log("failed to parse answer");
         }
+
+        var matches1 = offer.sdp.match(pattern);
+        console.log("kar-test received offer", matches1[0]);
+
         pc.setRemoteDescription(offer);
         pc.createAnswer().then((answer) => {
           pc.setLocalDescription(answer);
@@ -151,6 +158,9 @@ function connect(stream) {
               data: JSON.stringify(answer),
             })
           );
+
+          var matches2 = answer.sdp.match(pattern);
+          console.log("kart-test sent answer", matches2[0]);
         });
         return;
 
