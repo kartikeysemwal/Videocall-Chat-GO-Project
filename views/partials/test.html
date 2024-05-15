@@ -1,0 +1,80 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#001E6C" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" href="/icon.png" />
+    <link rel="stylesheet" href="/stylesheets/main.css" />
+    <link rel="manifest" href="/manifest.json" />
+    <title>Akhil's Chat Room.</title>
+  </head>
+  <body>
+    <section class="section">
+      <div class="container">
+        <header>
+          <nav class="navbar" role="navigation" aria-label="main navigation">
+            <div class="navbar-brand">
+              <a class="navbar-item title" href="/"
+                ><strong>Akhil's</strong>Chat Room</a
+              >
+            </div>
+            <div class="navbar-item">
+              <p class="subtitle"></p>
+            </div>
+            {{ if .Type }}
+            <div class="navbar-end">
+              {{ if eq .Type "room" }}
+              <div class="navbar-item has-dropdown is-hoverable">
+                <div class="navbar-link">
+                  Share
+                  <div class="navbar-dropdown">
+                    <div class="navbar-item">
+                      <button
+                        class="button is-light is-fullwidth"
+                        onclick="copyToClipboard('{{ .RoomLink }}')"
+                      >
+                        Room Link
+                      </button>
+                    </div>
+                    <div class="navbar-item">
+                      <button
+                        class="button is-light is-fullwidth"
+                        onclick="copyToClipboard('{{ .StreamLink }}')"
+                      >
+                        Stream Link
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="navbar-item">
+                <a href="/" class="button is-danger">Leave Room</a>
+              </div>
+              {{ end }} {{ if eq .Type "stream" }}
+              <div class="navbar-item">
+                <a href="/" class="button is-danger">Leave Stream</a>
+              </div>
+              {{ end }}
+            </div>
+            {{ end }}
+          </nav>
+        </header>
+        <hr />
+        <hr />
+        <footer class="footer">
+          <div class="content">
+            <p>This app is good</p>
+            <hr />
+            <p>Yes it is</p>
+            <hr />
+            <p>Try it once</p>
+          </div>
+          <script src="/javascript/register.js"></script>
+        </footer>
+      </div>
+    </section>
+  </body>
+</html>
