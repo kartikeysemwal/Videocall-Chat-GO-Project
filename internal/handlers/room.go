@@ -16,7 +16,10 @@ import (
 )
 
 func RoomCreate(c *fiber.Ctx) error {
-	return c.Redirect(fmt.Sprintf("/room/%s", guuid.New().String()))
+	// return c.Redirect(fmt.Sprintf("/room/%s", guuid.New().String()))
+	response := fiber.Map{"url": fmt.Sprintf("/room/%s", guuid.New().String())}
+
+	return c.JSON(response)
 }
 
 func Room(c *fiber.Ctx) error {
@@ -33,14 +36,25 @@ func Room(c *fiber.Ctx) error {
 
 	uuid, suuid, _ := createOrGetRoom(uuid)
 
-	return c.Render("peer", fiber.Map{
+	// return c.Render("peer", fiber.Map{
+	// 	"RoomWebsocketAddr":   fmt.Sprintf("%s://%s/room/%s/websocket", ws, c.Hostname(), uuid),
+	// 	"RoomLink":            fmt.Sprintf("%s://%s/room/%s", c.Protocol(), c.Hostname(), uuid),
+	// 	"ChatWebsocketAddr":   fmt.Sprintf("%s://%s/room/%s/chat/websocket", ws, c.Hostname(), uuid),
+	// 	"ViewerWebsocketAddr": fmt.Sprintf("%s://%s/room/%s/viewer/websocket", ws, c.Hostname(), uuid),
+	// 	"StreamLink":          fmt.Sprintf("%s://%s/steam/%s", c.Protocol(), c.Hostname(), suuid),
+	// 	"Type":                "room",
+	// }, "layouts/main")
+
+	response := fiber.Map{
 		"RoomWebsocketAddr":   fmt.Sprintf("%s://%s/room/%s/websocket", ws, c.Hostname(), uuid),
 		"RoomLink":            fmt.Sprintf("%s://%s/room/%s", c.Protocol(), c.Hostname(), uuid),
 		"ChatWebsocketAddr":   fmt.Sprintf("%s://%s/room/%s/chat/websocket", ws, c.Hostname(), uuid),
 		"ViewerWebsocketAddr": fmt.Sprintf("%s://%s/room/%s/viewer/websocket", ws, c.Hostname(), uuid),
 		"StreamLink":          fmt.Sprintf("%s://%s/steam/%s", c.Protocol(), c.Hostname(), suuid),
 		"Type":                "room",
-	}, "layouts/main")
+	}
+
+	return c.JSON(response)
 }
 
 func RoomWebsocket(c *websocket.Conn) {
