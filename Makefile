@@ -18,4 +18,7 @@ build-run-dev:
 	make build-dev && make run-dev
 
 run-local:
-	go build -gcflags=all="-N -l" cmd/main.go && main.exe
+	go build -gcflags=all="-N -l" cmd/main.go && main.exe 
+
+run-frontend:
+	cd chat-app-frontend && npm run dev

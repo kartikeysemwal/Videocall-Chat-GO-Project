@@ -11,7 +11,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/room/create" Component={Room} />
-        <Route path="/room/:RoomWebsocketAddr" Component={Peer} />
+        <Route path="/room/:RoomWebsocketAddr" element={<Peer />} />
       </Routes>
       <Footer />
     </Router>

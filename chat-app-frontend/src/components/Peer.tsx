@@ -1,11 +1,19 @@
-import { useEffect, useRef } from "react";
-import { useParams, useLocation } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import { GetWSDetails } from "../utils/ServerAPIs";
 
 const Peer = () => {
-  // const { RoomWebsocketAddr } = useParams();
-  const location = useLocation();
+  const [RoomWebsocketAddr, setRoomWebsocketAddr] = useState<string>("");
+  const { RoomWebsocketAddr: RoomWebsocketAddrFromParams } = useParams();
 
-  const RoomWebsocketAddr: string = location.state.RoomWebsocketAddr;
+  useEffect(() => {
+    const fetchData = async () => {
+      const res = await GetWSDetails(`/room/${RoomWebsocketAddrFromParams}`);
+      setRoomWebsocketAddr(res);
+    };
+
+    fetchData();
+  }, [RoomWebsocketAddrFromParams]);
 
   //   const [stream, setStream] = useState<MediaStream | null>(null);
   const localVideoRef = useRef<HTMLVideoElement>(null);
@@ -206,7 +214,7 @@ const Peer = () => {
         connect(stream);
       })
       .catch((error) => console.log(error));
-  });
+  }, [RoomWebsocketAddr]);
 
   return (
     <div>
