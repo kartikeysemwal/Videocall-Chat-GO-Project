@@ -17,25 +17,9 @@ const Peer = () => {
 
   //   const [stream, setStream] = useState<MediaStream | null>(null);
   const localVideoRef = useRef<HTMLVideoElement>(null);
-  const peersRef = useRef<HTMLDivElement>(null);
-  const chatRef = useRef<HTMLDivElement>(null);
-  const noPermRef = useRef<HTMLDivElement>(null);
   const videosRef = useRef<HTMLDivElement>(null);
-  const nooneRef = useRef<HTMLDivElement>(null);
-  const nooneInRef = useRef<HTMLDivElement>(null);
-  const noConRef = useRef<HTMLDivElement>(null);
 
   const connect = (stream: MediaStream) => {
-    if (peersRef.current) {
-      peersRef.current.style.display = "block";
-    }
-    if (chatRef.current) {
-      chatRef.current.style.display = "flex";
-    }
-    if (noPermRef.current) {
-      noPermRef.current.style.display = "none";
-    }
-
     const pc = new RTCPeerConnection({
       iceServers: [
         { urls: "stun:stun.l.google.com:19302" },
@@ -56,7 +40,6 @@ const Peer = () => {
       }
 
       const col = document.createElement("div");
-      col.className = "column is-6 peer";
       const el = document.createElement(event.track.kind);
       el.srcObject = event.streams[0];
       el.setAttribute("controls", "true");
@@ -64,12 +47,6 @@ const Peer = () => {
       el.setAttribute("playsinline", "true");
       col.appendChild(el);
 
-      if (nooneRef.current) {
-        nooneRef.current.style.display = "none";
-      }
-      if (noConRef.current) {
-        noConRef.current.style.display = "none";
-      }
       if (videosRef.current) {
         videosRef.current.appendChild(col);
       }
@@ -81,15 +58,6 @@ const Peer = () => {
       event.streams[0].onremovetrack = () => {
         if (el.parentNode) {
           el.parentNode.removeChild(el);
-        }
-
-        if (videosRef.current && videosRef.current.childElementCount <= 3) {
-          if (nooneRef.current) {
-            nooneRef.current.style.display = "grid";
-          }
-          if (nooneInRef.current) {
-            nooneInRef.current.style.display = "grid";
-          }
         }
       };
     };
@@ -124,13 +92,6 @@ const Peer = () => {
         while (videosRef.current.childElementCount > 3) {
           videosRef.current.lastChild?.remove();
         }
-      }
-
-      if (nooneRef.current) {
-        nooneRef.current.style.display = "none";
-      }
-      if (noConRef.current) {
-        noConRef.current.style.display = "flex";
       }
 
       setTimeout(function () {
@@ -207,7 +168,6 @@ const Peer = () => {
         },
       })
       .then((stream) => {
-        // setStream(stream);
         if (localVideoRef.current) {
           localVideoRef.current.srcObject = stream;
         }
@@ -219,13 +179,7 @@ const Peer = () => {
   return (
     <div>
       <video id="localVideo" ref={localVideoRef} autoPlay playsInline></video>
-      <div id="peers" ref={peersRef} style={{ display: "none" }}></div>
-      <div id="chat" ref={chatRef} style={{ display: "none" }}></div>
-      <div id="noperm" ref={noPermRef} style={{ display: "block" }}></div>
-      <div id="videos" ref={videosRef}></div>
-      <div id="noone" ref={nooneRef} style={{ display: "none" }}></div>
-      <div id="noonein" ref={nooneInRef} style={{ display: "none" }}></div>
-      <div id="nocon" ref={noConRef} style={{ display: "none" }}></div>
+      <div id="videos" ref={videosRef} style={{ display: "block" }}></div>
     </div>
   );
 };

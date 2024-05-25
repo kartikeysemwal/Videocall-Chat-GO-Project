@@ -9,7 +9,7 @@ const Header = () => {
             aria-label="main navigation"
           >
             <div className="navbar-brand">
-              <a className="navbar-item title" href="/">
+              <a className="navbar-item title" href="/room/create">
                 <strong>Chat Room</strong>
               </a>
             </div>

@@ -216,3 +216,26 @@ video {
     width: 23%;
   }
 }
+
+.full-body {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.main-component {
+  display: flex;
+  flex: 1;
+}
+
+.editor-component {
+  flex: 0 1 60%;
+  padding: 10px;
+  overflow-y: auto;
+}
+
+.video-component {
+  flex: 1;
+  padding: 10px;
+  overflow-y: auto;
+}
