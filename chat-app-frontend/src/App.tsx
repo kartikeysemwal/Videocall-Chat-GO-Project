@@ -12,18 +12,13 @@ function App() {
       <div className="full-body">
         <Header />
         <div className="main-component">
-          <div className="editor-component">
-            <EditorComponent />
-          </div>
-          <div className="video-component">
-            <Routes>
-              <Route path="/room/create" Component={Room} />
-              <Route path="/room/:RoomWebsocketAddr" element={<Peer />} />
-            </Routes>
-          </div>
+          <Routes>
+            <Route path="/room/create" Component={Room} />
+            <Route path="/room/:RoomWebsocketAddr" element={<Peer />} />
+          </Routes>
         </div>
-        <Footer />
       </div>
+      <Footer />
     </Router>
   );
 }

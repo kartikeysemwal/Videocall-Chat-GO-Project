@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
-import { GetWSDetails } from "../utils/ServerAPIs";
+import { GetWSDetails, WSDetailsRes } from "../utils/ServerAPIs";
+import EditorComponent from "./CodeEditor";
 
 const Peer = () => {
-  const [RoomWebsocketAddr, setRoomWebsocketAddr] = useState<string>("");
+  const [WSDetails, setRoomWebsocketAddr] = useState<WSDetailsRes>({
+    RoomWebsocketAddr: "",
+    ChatWebsocketAddr: "",
+  });
   const { RoomWebsocketAddr: RoomWebsocketAddrFromParams } = useParams();
 
   useEffect(() => {
@@ -64,7 +68,7 @@ const Peer = () => {
 
     stream.getTracks().forEach((track) => pc.addTrack(track, stream));
 
-    const websocket = new WebSocket(RoomWebsocketAddr ?? "");
+    const websocket = new WebSocket(WSDetails.RoomWebsocketAddr ?? "");
 
     pc.onicecandidate = (e) => {
       if (!e.candidate) {
@@ -174,13 +178,20 @@ const Peer = () => {
         connect(stream);
       })
       .catch((error) => console.log(error));
-  }, [RoomWebsocketAddr]);
+  }, [WSDetails]);
 
   return (
-    <div>
-      <video id="localVideo" ref={localVideoRef} autoPlay playsInline></video>
-      <div id="videos" ref={videosRef} style={{ display: "block" }}></div>
-    </div>
+    <>
+      <div className="editor-component">
+        {WSDetails.ChatWebsocketAddr && (
+          <EditorComponent ChatWebsocketAddr={WSDetails.ChatWebsocketAddr} />
+        )}
+      </div>
+      <div className="video-component">
+        <video id="localVideo" ref={localVideoRef} autoPlay playsInline></video>
+        <div id="videos" ref={videosRef} style={{ display: "block" }}></div>
+      </div>
+    </>
   );
 };
 

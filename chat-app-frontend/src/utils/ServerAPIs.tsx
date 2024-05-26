@@ -1,19 +1,25 @@
 import axios from "axios";
 
-export const GetWSDetails = async (path: string): Promise<string> => {
-  let RoomWebsocketAddr: string;
+export interface WSDetailsRes {
+  RoomWebsocketAddr: string;
+  ChatWebsocketAddr: string;
+}
+
+export const GetWSDetails = async (path: string): Promise<WSDetailsRes> => {
+  const res: WSDetailsRes = {
+    RoomWebsocketAddr: "",
+    ChatWebsocketAddr: "",
+  };
 
   try {
     const response = await axios.get(`http://localhost:8080${path}`);
-    RoomWebsocketAddr = response.data.RoomWebsocketAddr;
+    res.RoomWebsocketAddr = response.data.RoomWebsocketAddr;
+    res.ChatWebsocketAddr = response.data.ChatWebsocketAddr;
   } catch (error) {
     console.log("Error in fetching websocket details", error);
-    RoomWebsocketAddr = "";
   }
 
-  console.log(RoomWebsocketAddr);
-
-  return RoomWebsocketAddr;
+  return res;
 };
 
 export const GetRoomCreateRes = async (): Promise<string> => {
