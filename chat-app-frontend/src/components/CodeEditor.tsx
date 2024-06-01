@@ -5,24 +5,28 @@ const EditorComponent = (props: { ChatWebsocketAddr: string }) => {
   const [websocket, setWebsocket] = useState<WebSocket>();
   const editorRef = useRef(null);
 
-  console.log(props.ChatWebsocketAddr);
+  const [editorChangeReceived, setEditorChangeReceived] = useState<string>("");
 
   function handleEditorDidMount(editor, monaco) {
     editorRef.current = editor;
   }
 
-  function showValue() {
-    // alert(editorRef?.current?.getValue());
+  function handleEditorChange(value, event) {
+    const editorValue: string = editorRef?.current?.getValue() || "";
+
+    if (0 == editorValue.localeCompare(editorChangeReceived)) {
+      return;
+    }
+
     websocket?.send(
       JSON.stringify({
         event: "editor-change",
-        data: editorRef?.current?.getValue() || "",
+        data: editorValue,
       })
     );
   }
 
   const EstablishWS = () => {
-    console.log(props.ChatWebsocketAddr);
     const websocket = new WebSocket(props.ChatWebsocketAddr);
 
     setWebsocket(websocket);
@@ -42,29 +46,30 @@ const EditorComponent = (props: { ChatWebsocketAddr: string }) => {
         console.log("Failed to parse message in code editor");
       }
 
-      console.log(msg);
-
       switch (msg.event) {
         case "editor-change": {
-          editorRef?.current?.getModel().setValue("test");
+          setEditorChangeReceived(msg.data);
         }
       }
     };
   };
 
   useEffect(() => {
-    console.log("here");
     EstablishWS();
   }, []);
 
+  useEffect(() => {
+    editorRef?.current?.setValue(editorChangeReceived);
+  }, [editorChangeReceived]);
+
   return (
     <>
-      <button onClick={showValue}>Show value</button>
       <Editor
         height="90vh"
         defaultLanguage="javascript"
         defaultValue="console.log('Hello World')"
         onMount={handleEditorDidMount}
+        onChange={handleEditorChange}
       />
     </>
   );

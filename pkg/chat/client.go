@@ -2,7 +2,9 @@ package chat
 
 import (
 	"bytes"
+	"fmt"
 	"log"
+	"math/rand"
 	"time"
 
 	"github.com/fasthttp/websocket"
@@ -24,6 +26,7 @@ type Client struct {
 	Hub  *Hub
 	Conn *websocket.Conn
 	Send chan []byte
+	name string
 }
 
 var upgrader = websocket.FastHTTPUpgrader{
@@ -56,7 +59,10 @@ func (c *Client) readPump() {
 		}
 
 		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		c.Hub.broadcast <- message
+		c.Hub.broadcast <- MessageStruct{
+			data:       message,
+			clientName: c.name,
+		}
 	}
 }
 
@@ -108,6 +114,7 @@ func PeerChatConn(c *websocket.Conn, hub *Hub) {
 		Hub:  hub,
 		Conn: c,
 		Send: make(chan []byte, 256),
+		name: fmt.Sprintf("%d", rand.Intn(100000)),
 	}
 
 	client.Hub.register <- client

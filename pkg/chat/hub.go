@@ -1,15 +1,20 @@
 package chat
 
+type MessageStruct struct {
+	data       []byte
+	clientName string
+}
+
 type Hub struct {
 	clients    map[*Client]bool
-	broadcast  chan []byte
+	broadcast  chan MessageStruct
 	register   chan *Client
 	unregister chan *Client
 }
 
 func NewHub() *Hub {
 	return &Hub{
-		broadcast:  make(chan []byte),
+		broadcast:  make(chan MessageStruct),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
@@ -28,8 +33,11 @@ func (h *Hub) Run() {
 			}
 		case message := <-h.broadcast:
 			for client := range h.clients {
+				if client.name == message.clientName {
+					continue
+				}
 				select {
-				case client.Send <- message:
+				case client.Send <- message.data:
 				default:
 					close(client.Send)
 					delete(h.clients, client)
