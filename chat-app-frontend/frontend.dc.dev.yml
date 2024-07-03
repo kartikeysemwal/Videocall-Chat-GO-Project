@@ -1,0 +1,24 @@
+version: "3.8"
+
+services:
+  react-app:
+    image: chat-app-frontend
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    deploy:
+      replicas: 1
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200m"
+        max-file: "10"
+    ports:
+      - "5173:5173"
+    command: ["npm", "run", "dev"]
+    volumes:
+      - ./src:/app/src
+      - /app/node_modules
+    environment:
+      - CHOKIDAR_USEPOLLING=true
